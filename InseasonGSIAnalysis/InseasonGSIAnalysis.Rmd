@@ -1,0 +1,42 @@
+---
+title: "Analysis of chum salmon bycatch from shoreside sector of Bering Sea Aleutian Islands pollock trawl fishery."
+author: "Patrick Barry and Wes Larson"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+CrntSW <- 28 #Current Stat week
+CrntYr <- format(Sys.Date(),"%Y") #Get the current year
+
+dir.create(file.path(paste("../Reports/",CrntYr,"/",CrntSW,sep="")))
+```
+
+## Summary
+
+Main results from analysis w/ table
+
+## Introduction
+
+Short summary of the project, outcomes etc. 
+
+## Chum Salmon Bycatch Encounters 
+
+Read in Glenns file
+plot total bycatch by date
+
+## Sampling of Bycatch
+
+
+
+## Genotyping 
+Read in genotypes
+Bind the catch info to the genotypes
+Subset to ABL markers
+Perform stock comp analysis 
+Expand to number of fish from catch data
+
+Compare with prior weeks results
+
