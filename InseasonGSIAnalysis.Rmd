@@ -1,43 +1,130 @@
 ---
-title: "Analysis of chum salmon bycatch from shoreside sector of Bering Sea Aleutian Islands pollock trawl fishery."
-author: "Patrick Barry and Wes Larson"
-date: "`r Sys.Date()`"
-output: html_document
+title: Inseason analysis of chum salmon *Oncorhynchus* *keta* bycatch from shoreside
+  sector of Bering Sea Aleutian Islands walleye pollock *Gadus* *chalcogrammus* trawl
+  fishery.
+author: Patrick Barry^[NOAA Alaska Fisheries Science Center, patrick.barry@noaa.gov]
+  and Wes Larson^[NOAA Alaska Fisheries Science Center, wes.larson@noaa.gov]
+date: "`r paste('Report generated on: ', Sys.Date(),sep='')`"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
 
 CrntSW <- 28 #Current Stat week
 CrntYr <- format(Sys.Date(),"%Y") #Get the current year
 
-if(!exists(file.path(paste("./Reports/",CrntYr,"/",CrntSW,sep=""))),
-  dir.create(file.path(paste("./Reports/",CrntYr,"/",CrntSW,sep=""))))
+library(tidyverse)
+
+#functions
+statweek = function(dates, format="%d-%m-%Y", ...) {
+  # convert to Date
+  dates = as.Date(dates, format=format, ...) 
+  # get correction for the first week of the year (0 if 1-Jan not a Sunday)
+  firstweek = 1 - as.numeric(format(as.Date(cut(dates, "year")), "%U")) 
+  output = as.numeric(format(dates, "%U")) + firstweek
+  return(output)
+}
 ```
 
-## Summary
+---
+subtitle: '`r paste("Results from Statistical Week", CrntSW, sep="")`'
+---
+
+\newpage
+
+
+# Summary
 
 Main results from analysis w/ table
 
-## Introduction
+\newpage
 
-Short summary of the project, outcomes etc.
-> Fishery & bycatch
-> Management under NPFMC
-> NOAAs current sampling & reporting
-> Impetus for project
-> BBSRIs project outline ~ Appendix methods
+# Introduction
+```{r readAKRO, eval=T, echo=F}
+AKRO_Files <- list.files(file.path(paste("./MainData/AKRO/",CrntYr,sep="")),
+                         include.dirs = FALSE) #list AKRO files sent by Glenn
 
-## Chum Salmon Bycatch Encounters 
+#Find the file to process
+FileWeeks <- AKRO_Files %>%
+  str_split(.,"_")%>%
+  lapply(.,"[[",1)%>%
+  unlist() %>% 
+  as.Date(.,format="%Y%m%d")%>%
+  format(.,"%d-%m-%Y")%>%
+  statweek(.)
 
-Read in Glenns file
-```{r}
-AKRO_Files <- list.files(file.path(paste("./MainData/AKRO/",CrntYr,sep="")))
+File2Read <- AKRO_Files[which.min(abs(CrntSW-FileWeeks)) ]
 
-AKRO_Obs <- read.csv(paste("./MainData/AKRO/")
+AKRO_Obs <- readxl::read_xls(file.path(paste("./MainData/AKRO/",CrntYr,"/",File2Read,sep=""))) %>%
+  mutate(DATE = format(DELIVERY_END_DATE,"%d-%m-%Y"))%>%
+  mutate(SW = statweek(DATE))
+
+AKRO_ObsSum <- AKRO_Obs %>%
+  group_by(SW,NMFS_AREA) %>%
+  summarize(nChum = sum(CHUM_RETENTION_COUNT,na.rm=T),
+            nDeliveries = n(),
+            nUniqVess = length(unique(DELIVERING_VESSEL_PERMIT)))%>%
+  mutate(nChumPerDeliv = nChum/nDeliveries)%>%
+    filter(nUniqVess >=3)
+
 ```
 
-plot total bycatch by date
+Within the Federally Managed midwater trawl fishery for walleye 
+pollock (*Gadus* *chalcogrammus*) in the Bering Sea and Aleutian 
+Islands (BSAI), chum salmon (*Oncorhynchus* *keta*) incidental catch occurs occasionally in very 
+large numbers. Salmon are managed as a prohibited species catch (bycatch) 
+and are highly regulated. Currently, 
+annual estimates of genetic stock composition are produced by NOAA's 
+Alaska Fishery Science Center (AFSC) genetics program and presented to 
+the North Pacific Fisheries Management Council (NPFMC). All chum salmon bycatch
+is enumerated by the observer program and 1 in 30 are sampled; information 
+taken on length, weight, sex, and a tissue sample and scale sent to the AFSC 
+genetics program for analysis. In 2024 a project was initiated by Bristol Bay
+Salmon Research Institute (BBSRI) to sample the bycatch from the shore based 
+sector of the fleet in order to obtain weekly estimates of genetic stock 
+composition. This report outlines the results the analysis of the chum
+salmon bycatch from statistical week `r CrntSW` (`r AKRO_Obs%>% filter(SW == CrntSW) %>% slice_min(order_by=DATE)%>% slice_head(n=1) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")` - 
+`r AKRO_Obs%>% filter(SW == min(AKRO_ObsSum$SW)) %>% slice_max(order_by=DATE)%>% slice_head(n=1) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")`).
+
+# Results 
+## Chum Salmon Bycatch  
+
+```{r AKROsummary, eval=T, echo=F}
+
+AKRO_ObsSum <- bind_rows(AKRO_ObsSum %>% mutate(NMFS_AREA = as.character(NMFS_AREA)),
+                         AKRO_Obs %>%
+                          group_by(SW) %>%
+                          summarize(nChum = sum(CHUM_RETENTION_COUNT,na.rm=T),
+                                    nDeliveries = n(),
+                                    nUniqVess = length(unique(DELIVERING_VESSEL_PERMIT)))%>%
+                          mutate(nChumPerDeliv = nChum/nDeliveries)%>%
+                           mutate(NMFS_AREA = "BSAI Total")%>%
+                            filter(nUniqVess >3))
+                         
+  
+```
+
+Since statistical week `r min(AKRO_ObsSum$SW)` (`r AKRO_Obs%>% filter(SW == min(AKRO_ObsSum$SW)) %>% slice_min(order_by=DATE) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")`),  `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon have been incidentally
+caught by the shoreside sector. In the current statistical 
+week (`r CrntSW`), there were 
+`r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon caught, `r ifelse((AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) < (AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==(CrntSW-1))%>%ungroup() %>% select(nChum) %>% sum()),"a decrease","an increase")` from the previous week (Figure 1). The majority of chum salmon were caught in NMFS Area `r AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)%>% unlist()`. `r ifelse(AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA) == AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),paste("Similarly, the largest chum rate (chum per delivery) was also in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""),paste("Despite the largest number of chum salmon being caught in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)," the highest rate of chum salmon bycatch was in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""))`.
+
+```{r AKRO_Bycatch, eval=T, echo=F, fig.cap="Number of chum salmon caught by the shoreside sector of the Bering Sea pollock trawl fishery by statistical week. Weekly totals for which fewer than 4 vessels made deliveries have been omitted.",fig.width=6,fig.height=3}
+AKRO_ObsSum %>%
+  ggplot(.,aes(x=SW,y=nChum,color=as.factor(NMFS_AREA),group=NMFS_AREA))+
+  geom_point()+
+  geom_line()+
+  theme_bw()+
+  ylab("Number of Chum Salmon")+
+  xlab("Statistical Week")+
+  guides(color=guide_legend(title="NMFS\nStat Area"))+
+  scale_y_continuous(labels=scales::comma)
+
+```
 
 ## Sampling of Bycatch
 
@@ -52,6 +139,6 @@ Expand to number of fish from catch data
 
 Compare with prior weeks results
 
-## Appendix I: Methods
-### Genotyping
-### Genetic Stock Composition Estimates
+# Appendix I: Methods
+## Genotyping
+## Genetic Stock Composition Estimates
