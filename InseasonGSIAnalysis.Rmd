@@ -214,19 +214,34 @@ Genos_Fldm_Genotype <- Genos_Fldm %>%
   select(Sample_Name,Chip, Locus,CallInfo_Converted) %>%
   reshape2::dcast(Sample_Name + Chip ~ Locus , value.var= c("CallInfo_Converted"))
 
+rubiasCols <- data.frame(sample_type = "mixture",
+                         repunit = NA,
+                         collection = "SW28",
+                         indiv = Genos_Fldm_Genotype$Sample_Name)
+
 Genos_Fldm_Alleles <- lapply(3:ncol(Genos_Fldm_Genotype),function(x)
   str_split(Genos_Fldm_Genotype[,x],pattern=":") %>%
     {cbind(lapply(.,"[[",1) %>% unlist(),lapply(.,"[[",2) %>% unlist())}
   )%>%
   do.call(cbind,.)%>%
-  {cbind(Genos_Fldm_Genotype[,1:2],.)}
+  {cbind(rubiasCols,.)}
 
-colnames(Genos_Fldm_Alleles)[3:ncol(Genos_Fldm_Alleles)]<-paste(rep(colnames(Genos_Fldm_Genotype)[-c(1:2)],each=2),c("1","2"),sep="_")
+colnames(Genos_Fldm_Alleles)[5:(ncol(Genos_Fldm_Alleles))]<-paste(rep(colnames(Genos_Fldm_Genotype)[-c(1:2)],each=2),c("1","2"),sep="_")
+
 ```
 
 
 ```{r QC_input, eval=T, echo=F}
-GenoMetaDat$`WHAT_CARD-NO`[!GenoMetaDat$`WHAT_CARD-NO`%in%Temp$Sample_Name]    
+#check for samples not genotyped
+if(length(GenoMetaDat$`WHAT_CARD-NO`[!GenoMetaDat$`WHAT_CARD-NO`%in%Genos_Fldm_Alleles$indiv])>0){
+  paste("WARNING: Samples in biosampling sheet not associated with genotypes (",paste(GenoMetaDat$`WHAT_CARD-NO`[!GenoMetaDat$`WHAT_CARD-NO`%in%Genos_Fldm_Alleles$indiv],collapse=" , "),").",sep="")
+} 
+
+#check for samples genotyped multiple times
+if(any(duplicated(Genos_Fldm_Alleles$indiv))){
+  paste("WARNING: Duplicated samples in genotype file (",paste(Genos_Fldm_Alleles$indiv[duplicated(Genos_Fldm_Alleles$indiv,fromLast = T)] %>% {.[.!="NTC"]},collapse=","),").",sep="")
+  }   
+
 ```
 
 
