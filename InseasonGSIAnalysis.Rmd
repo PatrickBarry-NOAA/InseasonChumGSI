@@ -2,10 +2,13 @@
 title: Inseason analysis of chum salmon *Oncorhynchus* *keta* bycatch from shoreside
   sector of Bering Sea Aleutian Islands walleye pollock *Gadus* *chalcogrammus* trawl
   fishery.
-author: Patrick Barry^[NOAA Alaska Fisheries Science Center, patrick.barry@noaa.gov]
-  and Wes Larson^[NOAA Alaska Fisheries Science Center, wes.larson@noaa.gov]
+author: Patrick Barry^[NOAA Alaska Fisheries Science Center, patrick.barry@noaa.gov],
+  Jamie Musbach, and Wes Larson.
 date: "`r paste('Report generated on: ', Sys.Date(),sep='')`"
 output:
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
   html_document:
     toc: yes
     toc_depth: 2
@@ -108,10 +111,10 @@ AKRO_ObsSum <- bind_rows(AKRO_ObsSum %>% mutate(NMFS_AREA = as.character(NMFS_AR
   
 ```
 
-Since statistical week `r min(AKRO_ObsSum$SW)` (`r AKRO_Obs%>% filter(SW == min(AKRO_ObsSum$SW)) %>% slice_min(order_by=DATE) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")`),  `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon have been incidentally
+Since statistical week `r min(AKRO_Obs$SW)` (`r AKRO_Obs%>% filter(SW == min(AKRO_ObsSum$SW)) %>% slice_min(order_by=DATE) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")`),  `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon have been incidentally
 caught by the shoreside sector. In the current statistical 
 week (`r CrntSW`), there were 
-`r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon caught, `r ifelse((AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) < (AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==(CrntSW-1))%>%ungroup() %>% select(nChum) %>% sum()),"a decrease","an increase")` from the previous week (Figure 1). The majority of chum salmon were caught in NMFS Area `r AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)%>% unlist()`. `r ifelse(AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA) == AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),paste("Similarly, the largest chum rate (chum per delivery) was also in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""),paste("Despite the largest number of chum salmon being caught in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)," the highest rate of chum salmon bycatch was in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""))`.
+`r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon caught in `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nDeliveries) %>% sum() %>% formatC(.,big.mark = ",")  ` deliveries, `r ifelse((AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) < (AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==(CrntSW-1))%>%ungroup() %>% select(nChum) %>% sum()),"a decrease in total bycatch","an increase in total bycatch")` from the previous week (Figure 1). The majority of chum salmon were caught in NMFS Area `r AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)%>% unlist()`. `r ifelse(AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA) == AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),paste("Similarly, the largest chum rate (chum per delivery) was also in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""),paste("Despite the largest number of chum salmon being caught in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)," the highest rate of chum salmon bycatch was in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""))`.
 
 ```{r AKRO_Bycatch, eval=T, echo=F, fig.cap="Number of chum salmon caught by the shoreside sector of the Bering Sea pollock trawl fishery by statistical week. Weekly totals for which fewer than 4 vessels made deliveries have been omitted.",fig.width=6,fig.height=3}
 AKRO_ObsSum %>%
@@ -128,10 +131,105 @@ AKRO_ObsSum %>%
 
 ## Sampling of Bycatch
 
+```{r BBSRIsampling, eval=T, echo=F}
+BBSRI_Dlvry <- readxl::read_xlsx(file.path(paste("./MainData/BBSRI/",CrntYr,"/SW",CrntSW,"/","Catch Sampling_Master_SW",CrntSW,".xlsx",sep="")),sheet = 'DELIVERYINFO') %>%
+  mutate(DATE = as.Date(as.character(DATE),"%Y-%m-%d"))%>%
+  mutate(DATE2 = format(DATE,"%d-%m-%Y"))%>%
+  mutate(SW = statweek(DATE2))%>%
+  rename('PROCESSOR_PERMIT' = 'PROCESSOR',
+         'OFFLOAD_NUMBER' = 'OFFLOAD_NO')
+
+#Bind to obs data
+AKRO_BBSRI_Dlvry <- AKRO_Obs %>%
+  full_join(.,BBSRI_Dlvry, by = c('CRUISE','PROCESSOR_PERMIT',"OFFLOAD_NUMBER","SW"))%>% #don't merge by NMFS area, use NMFS_AREA.x from AKRO data in subsequent code
+  filter(SW == CrntSW)
+
+if(any(is.na(AKRO_BBSRI_Dlvry$CRUISE) & (AKRO_BBSRI_Dlvry %>% filter(is.na(CRUISE)) %>% select(CHUM_LANDED) %>% sum(.,na.rm=T) %>% {.>0}))==TRUE) {
+  "WARNING: Positive chum catches for cruises not in AKRO data"
+}else{ AKRO_BBSRI_Dlvry <- AKRO_BBSRI_Dlvry %>% filter(!is.na(CRUISE))
+}
+
+```
+
+Of the `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon caught in 
+statistical week `r CrntSW`, a total of `r AKRO_BBSRI_Dlvry$CHUM_SAMPLED %>% sum(.,na.rm=T)`
+were sampled for an overall rate of sampling of 
+`r (AKRO_BBSRI_Dlvry$CHUM_SAMPLED %>% sum(.,na.rm=T) / AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) %>% round(.,2)` or 
+~`r as.character((AKRO_BBSRI_Dlvry$CHUM_SAMPLED %>% sum(.,na.rm=T) / AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) %>% janitor::round_to_fraction(.,denominator = 30) %>% MASS::fractions(.))` which 
+is `r ifelse((AKRO_BBSRI_Dlvry$CHUM_SAMPLED %>% sum(.,na.rm=T) / AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum())  < (1/min(as.numeric(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE),na.rm=T)), "less than", "greater than")` the target rate of `r as.character(1/min(as.numeric(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE),na.rm=T) %>% janitor::round_to_fraction(.,denominator = 30) %>% MASS::fractions(.))` (`r (1/min(as.numeric(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE),na.rm=T) %>% janitor::round_to_fraction(.,denominator = 30) %>% MASS::fractions(.))`). `r ifelse(AKRO_BBSRI_Dlvry %>% filter(is.na(TARGET_SAMPLE_RATE) & CHUM_RETENTION_COUNT > 0) %>% select(CHUM_RETENTION_COUNT) %>% sum(.,na.rm=T) %>% {.>0},paste("There were ", AKRO_BBSRI_Dlvry %>% filter(is.na(TARGET_SAMPLE_RATE) & CHUM_RETENTION_COUNT > 0) %>% select(CHUM_RETENTION_COUNT) %>% sum(.,na.rm=T), " chum salmon unsampled from ", AKRO_BBSRI_Dlvry %>% filter(is.na(TARGET_SAMPLE_RATE)  & CHUM_RETENTION_COUNT > 0) %>% nrow(.), " deliveries",sep=""),"All deliveries with non-zero chum bycatch were sampled")`.   
+
+```{r, SampTable, eval=T, echo=F}
+options(knitr.kable.NA = '')
+
+AKRO_BBSRI_Dlvry %>%
+  group_by(PLANT_NAME,SW,TARGET_SAMPLE_RATE) %>%
+  mutate(TARGET_SAMPLE_RATE = round(1/TARGET_SAMPLE_RATE,3))%>%
+  summarize(nChum = sum(CHUM_RETENTION_COUNT,na.rm=T),
+            nChumSamp = sum(CHUM_SAMPLED,na.rm=T),
+            RlzdSampRt = round(nChumSamp / nChum,3))%>%
+bind_rows(.,data.frame(PLANT_NAME = "Total",nChum = sum(AKRO_BBSRI_Dlvry$CHUM_RETENTION_COUNT,na.rm=T),nChumSamp = sum(AKRO_BBSRI_Dlvry$CHUM_SAMPLED,na.rm=T),RlzdSampRt = round(sum(AKRO_BBSRI_Dlvry$CHUM_SAMPLED,na.rm=T)/sum(AKRO_BBSRI_Dlvry$CHUM_RETENTION_COUNT,na.rm=T),2)))%>%
+  filter(nChum>0)%>%ungroup()%>%
+  select(-SW) %>%
+  knitr::kable(col.names=c("Plant","Target Sample\nRate","Total\nChum","Chum\nSampled","Sample\nRate"), booktabs = T, caption = paste("Sampling information for statistical week " , CrntSW, " over the shoreside processing plants.",sep=""))%>%
+ kableExtra::row_spec(nrow(AKRO_BBSRI_Dlvry %>%
+                  group_by(PLANT_NAME,SW,TARGET_SAMPLE_RATE) %>%
+                  mutate(TARGET_SAMPLE_RATE = round(1/TARGET_SAMPLE_RATE,3))%>%
+                  summarize(nChum = sum(CHUM_RETENTION_COUNT,na.rm=T),
+                            nChumSamp = sum(CHUM_SAMPLED,na.rm=T),
+                            RlzdSampRt = round(nChumSamp / nChum,3)))-1,hline_after=T)
+```
 
 
 ## Genotyping 
 Read in genotypes
+
+```{r GTdat, eval=T, echo=F}
+GenoFiles <- list.files(file.path(paste("./MainData/BBSRI/",CrntYr,"/SW",CrntSW,"/",sep="")))%>%
+  grep(pattern='Chip|Run',.,value=T)
+
+GenoMetaDat <- readxl::read_xlsx(file.path(paste("./MainData/BBSRI/",CrntYr,"/SW",CrntSW,"/","Catch Sampling_Master_SW28.xlsx",sep="")),
+                                sheet = "BIOSAMPLING") 
+
+Genos_Fldm<-lapply(1:length(GenoFiles),function(x) read_delim(file.path(paste("./MainData/BBSRI/",CrntYr,"/SW",CrntSW,"/",GenoFiles[x],sep="")),delim=",",skip = 16,col_names = F) %>%
+         rename('Chamber'= 1 ,
+                'Locus' = 2,
+                'Allele_x' = 3,
+                'Allele_y' = 4,
+                'Sample_Name' = 5,
+                'Sample_Type' = 6,
+                'CallInfo_Auto' = 7,
+                'Call_Confidence' = 8,
+                'CallInfo_Final' = 9,
+                'CallInfo_Converted' = 10,
+                'Intensity_x' = 11,
+                'Intensity_y' = 12) %>%
+           mutate(Chip = str_split(string = GenoFiles[x],pattern="_|Chip") %>% lapply(.,"[[",3)%>% str_trim()%>% unlist()))%>%
+  bind_rows(.)%>%
+  select(1:12,Chip)
+
+Genos_Fldm_Genotype <- Genos_Fldm %>%
+  mutate(CallInfo_Converted = recode(CallInfo_Converted,
+                                     'No Call' = "NA:NA",
+                                     'NTC' = "NTC:NTC"))%>%
+  select(Sample_Name,Chip, Locus,CallInfo_Converted) %>%
+  reshape2::dcast(Sample_Name + Chip ~ Locus , value.var= c("CallInfo_Converted"))
+
+Genos_Fldm_Alleles <- lapply(3:ncol(Genos_Fldm_Genotype),function(x)
+  str_split(Genos_Fldm_Genotype[,x],pattern=":") %>%
+    {cbind(lapply(.,"[[",1) %>% unlist(),lapply(.,"[[",2) %>% unlist())}
+  )%>%
+  do.call(cbind,.)%>%
+  {cbind(Genos_Fldm_Genotype[,1:2],.)}
+
+colnames(Genos_Fldm_Alleles)[3:ncol(Genos_Fldm_Alleles)]<-paste(rep(colnames(Genos_Fldm_Genotype)[-c(1:2)],each=2),c("1","2"),sep="_")
+```
+
+
+```{r QC_input, eval=T, echo=F}
+GenoMetaDat$`WHAT_CARD-NO`[!GenoMetaDat$`WHAT_CARD-NO`%in%Temp$Sample_Name]    
+```
+
+
 Bind the catch info to the genotypes
 Subset to ABL markers
 Perform stock comp analysis 
