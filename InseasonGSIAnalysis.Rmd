@@ -2,16 +2,19 @@
 title: Inseason analysis of chum salmon *Oncorhynchus* *keta* bycatch from shoreside
   sector of Bering Sea Aleutian Islands walleye pollock *Gadus* *chalcogrammus* trawl
   fishery.
-author: Patrick Barry^[NOAA Alaska Fisheries Science Center, patrick.barry@noaa.gov],
-  Jamie Musbach, and Wes Larson.
+author: Patrick Barry^[1],
+  Jamie Musbach, Abby XXX, and Wes Larson.
 date: "`r paste('Report generated on: ', Sys.Date(),sep='')`"
 output:
   pdf_document:
     toc: yes
     toc_depth: '2'
+    includes:
+            in_header: ./latex_fmt/header.tex 
   html_document:
     toc: yes
     toc_depth: 2
+bibliography: ./Bib/NOAA_GSI.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -33,6 +36,16 @@ statweek = function(dates, format="%d-%m-%Y", ...) {
   output = as.numeric(format(dates, "%U")) + firstweek
   return(output)
 }
+
+#Dummy table function
+dt = function(label, caption=NULL) {
+  print(xtable::xtable(setNames(data.frame(x=numeric()), " "),
+               caption=caption,
+               label=paste0("tab:", label)), 
+        hline.after=NULL,
+        booktabs=FALSE,
+        size="\\fontsize{0.1pt}{0.1pt}\\selectfont")
+}
 ```
 
 ---
@@ -43,8 +56,17 @@ subtitle: '`r paste("Results from Statistical Week", CrntSW, sep="")`'
 
 
 # Summary
+```{r exec-summary, echo = FALSE, ref.label = c("readAKRO", "AKROsummary","BBSRIsampling","GTdat","NameFunkiness","SetupRuns","BSmodelClean")}
+```
 
-Main results from analysis w/ table
+- Number of chum salmon taken in fishery
+- Number of chum salmon sampled (sample rate) & genotyped
+- Largerst proportion of fish? - Any trend over the last few weeks?
+- Estimate of number of Western Alaska / Upper Middle Yukon Fish
+
+```{r SWresSummary, echo = FALSE, message=FALSE,out.height='3in',out.width='4.5in',fig.align = 'center'}
+knitr::include_graphics(file.path(paste("./Output/",CrntYr,"/",CrntSW,"/","SW",CrntSW,"_TableAltVrs.png",sep="")))
+```
 
 \newpage
 
@@ -95,6 +117,85 @@ composition. This report outlines the results the analysis of the chum
 salmon bycatch from statistical week `r CrntSW` (`r AKRO_Obs%>% filter(SW == CrntSW) %>% slice_min(order_by=DATE)%>% slice_head(n=1) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")` - 
 `r AKRO_Obs%>% filter(SW == min(AKRO_ObsSum$SW)) %>% slice_max(order_by=DATE)%>% slice_head(n=1) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")`).
 
+# Methods
+## Bycatch Sampling
+Port sampler, employed by BBSRI, sampled pollock hauls delivered to processing
+plants in Dutch Harbor and Akutan. These samplers are instructed to sample
+at the same rate within a statistical week, but variable among weeks 
+(changes with the volume of bycatch). The target sampling rate for statistical
+week `r CrntSW` was 1 in `r unique(as.numeric(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE))[!is.na(unique(as.numeric(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE)))]`
+Port samplers, allowed access to chum salmon bycatch after NMFS observers 
+have processed the offload, take a length measurement, scale sample for 
+age estimation, and a fin clip for genetic analyses. Fin clips are stapled 
+onto a Whatman card which is labelled with haul level information from the 
+delivery. Scale analyses will be conducted post-season.
+
+## Genotyping
+All tissue samples, from both Dutch Harbor and Akutan, were sent to the
+BBSRI staffed genetics laboratory in Dutch Harbor 
+for processing. Genomic DNA was extracted from dried finclips 
+with Macherey-Nagel (Allentown, PA) NucleoSpin Tissue
+kits. Extracted DNA was amplified for 96 single nucleotide polymorphism markers (SNPs)
+with a Fluidigm (San Francisco, CA) 
+BioMark X9 system with 
+96.96 Dynamic Array integrated fluidic circuit (IFC). Each of the 9,216 parallel reactions were 
+consisted of
+50–500 $\eta g / \mu l$l DNA,
+1X Fast GT Sample Loading Reagent (Fluidigm), 
+1X TaqMan® GTXpress Master Mix (Applied Biosystems), 
+10X Custom ABI TaqMan SNP Genotyping Assay (Applied Biosystems), 
+1X Assay Loading Reagent (Fluidigm), and 
+2.5X ROX Reference Dye (Invitrogen). The temperature profile for amplification was
+thermal mixing at 60°C for 10 min and 70°C for 30 min followed by
+“Hot-Start” denaturation at 95°C for 2 min and 40 cycles of 
+amplification (denaturation at 95°C for 2 s and annealing at 60°C for 20 s). 
+After amplification, genotypes were scored with 
+BioMark Genotyping Analysis software.
+
+## Genetic Stock Identification
+Mixtures were created by grouping sampled fish into 
+temporal groups (statistical week) from non-debriefed observer data 
+provided by the Alaska Regional office and linked to genetic samples
+by BBSRI. Individual samples were fewer than 80% of their multilocus 
+genotype scored were dropped from analyses. Genetic stock identification 
+was performed with the conditional 
+genetic stock identification model in the R package *rubias*
+[@MoranAnderson2019] following the methods used in NOAA's annual reports.
+Briefly, baseline populations were
+grouped into six regions following [@Gray2010]: Southeast Asia (SE Asia), 
+Northeast Asia (NE Asia), Western Alaska
+(W Alaska), Upper/Middle Yukon (Up/Mid Yukon), Southwest 
+Alaska (SW Alaska), and the Eastern GOA/Pacific Northwest (EGOA/PNW).
+For all estimates, the Dirichlet prior parameters for the 
+stock proportions were defined by region to be
+1/($GC_g$), where $C_g$ is the number of baseline populations 
+in region $g$, and $G$ is the number of regions.
+To ensure convergence to the posterior 
+distribution, six separate MCMC chains of 100,000 
+iterations (burn-in of 50,000) of the non-bootstrapped model were 
+run, which each chain starting at disparate values of stock 
+proportions; configured such that for each chain 95% of the 
+mixture came from a single designated reporting group (with 
+probability equally distributed among the populations within 
+that reporting group) and the remaining 5% equally distributed 
+among remaining reporting groups.The convergence of chains 
+for each reporting group estimate was assessed with the 
+Gelman-Rubin statistic [@GelmanRubin1992] estimated with 
+the gelman.diag function in the coda library [@Plummer2006] 
+within R. Once chain convergence was confirmed, inference 
+was conducted with the conditional genetic stock identification 
+model with bootstrapping over reporting groups (MCMC chains of 100,000 
+iterations, burn-in of 50,000, 100 bootstrap iterations). 
+
+The stock composition estimates were summarized by the mean, 
+standard deviation,
+median, 95% credible interval (2.5th and 97.5th percentile of the MCMC iterates in the posterior
+output), and $P = 0$, which is the probability that a stock composition estimate is effectively zero
+(Munro et al. 2012). The $P = 0$ statistic is the frequency of the last half of the MCMC iterates of
+each chain for which the individual regional contribution to the mixture was less than a threshold
+of $0.5E^{-6}$. This statistic may be more useful than the credible interval for assessing the presence
+or absence of minor stocks. 
+
 # Results 
 ## Chum Salmon Bycatch  
 
@@ -113,7 +214,7 @@ AKRO_ObsSum <- bind_rows(AKRO_ObsSum %>% mutate(NMFS_AREA = as.character(NMFS_AR
   
 ```
 
-Since statistical week `r min(AKRO_Obs$SW)` (`r AKRO_Obs%>% filter(SW == min(AKRO_ObsSum$SW)) %>% slice_min(order_by=DATE) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")`),  `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon have been incidentally
+Since statistical week `r min(AKRO_Obs$SW)` (`r AKRO_Obs%>% filter(SW == min(AKRO_ObsSum$SW)) %>% slice_min(order_by=DATE) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")`),  `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% ungroup() %>% select(nChum) %>% sum(.,na.rm=T) %>% formatC(.,big.mark = ",")` chum salmon have been incidentally
 caught by the shoreside sector. In the current statistical 
 week (`r CrntSW`), there were 
 `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon caught in `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nDeliveries) %>% sum() %>% formatC(.,big.mark = ",")  ` deliveries, `r ifelse((AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) < (AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==(CrntSW-1))%>%ungroup() %>% select(nChum) %>% sum()),"a decrease in total bycatch","an increase in total bycatch")` from the previous week (Figure 1). The majority of chum salmon were caught in NMFS Area `r AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)%>% unlist()`. `r ifelse(AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA) == AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),paste("Similarly, the largest chum rate (chum per delivery) was also in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""),paste("Despite the largest number of chum salmon being caught in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)," the highest rate of chum salmon bycatch was in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""))`.
@@ -153,12 +254,13 @@ if(any(is.na(AKRO_BBSRI_Dlvry$CRUISE) & (AKRO_BBSRI_Dlvry %>% filter(is.na(CRUIS
 
 ```
 
-Of the `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon caught in 
-statistical week `r CrntSW`, a total of `r AKRO_BBSRI_Dlvry$CHUM_SAMPLED %>% sum(.,na.rm=T)`
-were sampled for an overall rate of sampling of 
+In statistical week `r CrntSW`, `r AKRO_BBSRI_Dlvry %>% select(SAMPLER_INITIALS) %>% unlist()%>% str_split(.,",|/|\\s") %>% unlist() %>% tolower() %>%unique() %>% {.[!is.na(.)]} %>% {.[.!=""]} %>% length()` BBSRI 
+technicians sampled hauls delivered to Dutch Harbor and Akutan. There were `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon caught in 
+statistical week `r CrntSW`. A total of `r AKRO_BBSRI_Dlvry$CHUM_SAMPLED %>% sum(.,na.rm=T)`
+were sampled for an overall sampling rate of 
 `r (AKRO_BBSRI_Dlvry$CHUM_SAMPLED %>% sum(.,na.rm=T) / AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) %>% round(.,2)` or 
 ~`r as.character((AKRO_BBSRI_Dlvry$CHUM_SAMPLED %>% sum(.,na.rm=T) / AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) %>% janitor::round_to_fraction(.,denominator = 30) %>% MASS::fractions(.))` which 
-is `r ifelse((AKRO_BBSRI_Dlvry$CHUM_SAMPLED %>% sum(.,na.rm=T) / AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum())  < (1/min(as.numeric(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE),na.rm=T)), "less than", "greater than")` the target rate of `r as.character(1/min(as.numeric(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE),na.rm=T) %>% janitor::round_to_fraction(.,denominator = 30) %>% MASS::fractions(.))` (`r (1/min(as.numeric(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE),na.rm=T) %>% janitor::round_to_fraction(.,denominator = 30) %>% MASS::fractions(.))`). `r ifelse(AKRO_BBSRI_Dlvry %>% filter(is.na(TARGET_SAMPLE_RATE) & CHUM_RETENTION_COUNT > 0) %>% select(CHUM_RETENTION_COUNT) %>% sum(.,na.rm=T) %>% {.>0},paste("There were ", AKRO_BBSRI_Dlvry %>% filter(is.na(TARGET_SAMPLE_RATE) & CHUM_RETENTION_COUNT > 0) %>% select(CHUM_RETENTION_COUNT) %>% sum(.,na.rm=T), " chum salmon unsampled from ", AKRO_BBSRI_Dlvry %>% filter(is.na(TARGET_SAMPLE_RATE)  & CHUM_RETENTION_COUNT > 0) %>% nrow(.), " deliveries",sep=""),"All deliveries with non-zero chum bycatch were sampled")`.   
+is `r ifelse((AKRO_BBSRI_Dlvry$CHUM_SAMPLED %>% sum(.,na.rm=T) / AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum())  < (1/min(as.numeric(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE),na.rm=T)), "less than", "greater than")` the target rate of `r as.character(1/min(as.numeric(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE),na.rm=T) %>% janitor::round_to_fraction(.,denominator = 30) %>% MASS::fractions(.))` (`r (1/min(as.numeric(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE),na.rm=T) %>% janitor::round_to_fraction(.,denominator = 30) %>% MASS::fractions(.))`; Table 1). `r ifelse(AKRO_BBSRI_Dlvry %>% filter(is.na(TARGET_SAMPLE_RATE) & CHUM_RETENTION_COUNT > 0) %>% select(CHUM_RETENTION_COUNT) %>% sum(.,na.rm=T) %>% {.>0},paste("There were ", AKRO_BBSRI_Dlvry %>% filter(is.na(TARGET_SAMPLE_RATE) & CHUM_RETENTION_COUNT > 0) %>% select(CHUM_RETENTION_COUNT) %>% sum(.,na.rm=T), " chum salmon unsampled from ", AKRO_BBSRI_Dlvry %>% filter(is.na(TARGET_SAMPLE_RATE)  & CHUM_RETENTION_COUNT > 0) %>% nrow(.), " deliveries",sep=""),"All deliveries with non-zero chum bycatch were sampled")` (Table 1).   
 
 ```{r, SampTable, eval=T, echo=F}
 options(knitr.kable.NA = '')
@@ -183,7 +285,6 @@ bind_rows(.,data.frame(PLANT_NAME = "Total",nChum = sum(AKRO_BBSRI_Dlvry$CHUM_RE
 
 
 ## Genotyping 
-
 
 ```{r GTdat, eval=T, echo=F}
 GenoFiles <- list.files(file.path(paste("./MainData/BBSRI/",CrntYr,"/SW",CrntSW,"/",sep="")))%>%
@@ -232,7 +333,6 @@ colnames(Genos_Fldm_Alleles)[5:(ncol(Genos_Fldm_Alleles))]<-paste(rep(colnames(G
 
 ```
 
-
 ```{r QC_input, eval=T, echo=F}
 #check for samples not genotyped
 if(length(GenoMetaDat$`WHAT_CARD-NO`[!GenoMetaDat$`WHAT_CARD-NO`%in%Genos_Fldm_Alleles$indiv])>0){
@@ -240,12 +340,13 @@ if(length(GenoMetaDat$`WHAT_CARD-NO`[!GenoMetaDat$`WHAT_CARD-NO`%in%Genos_Fldm_A
 } 
 
 #check for samples genotyped multiple times
-if(any(duplicated(Genos_Fldm_Alleles$indiv%>% {.[.!="NTC"]}))){
+if(any(duplicated(Genos_Fldm_Alleles$indiv %>% {.[.!="NTC"]}))){
   paste("WARNING: Duplicated samples in genotype file (",paste(Genos_Fldm_Alleles$indiv[duplicated(Genos_Fldm_Alleles$indiv,fromLast = T)] %>% {.[.!="NTC"]},collapse=","),").",sep="")
   }   
 
-```
+nDups<- sum(duplicated(Genos_Fldm_Alleles$indiv %>% {.[.!="NTC"]}))
 
+```
 
 ```{r NameFunkiness, eval=T, echo=F}
 
@@ -299,11 +400,29 @@ if(any(colnames(Baseline)!= colnames(Mixtures))){
 Mixtures <- Mixtures %>% 
   filter(indiv != "NTC")
 
+#Samples with low genotyping success?
+nloci<- (ncol(Mixtures)-4) / 2
+
+BadInds <- Mixtures %>%
+  mutate(CntNA = rowSums(is.na(select(., starts_with("oke")))),
+          GTrate = round(1-(CntNA / (nloci*2)),2))%>%
+  filter(GTrate<0.8)
+
+if(nrow(BadInds)>0){
+  Mixtures<- Mixtures %>%
+    filter(!(indiv%in%BadInds$indiv))
+}
+
 # close_matching_samples(Mixtures,
 #                               gen_start_col = 5)
 
 ```
 
+Of the `r AKRO_BBSRI_Dlvry %>% filter(SW == CrntSW) %>% select(CHUM_SAMPLED) %>% sum(.,na.rm=T)` chum salmon sampled
+from the total catch of `r AKRO_Obs %>% filter(SW == CrntSW) %>% select(CHUM_RETENTION_COUNT) %>% sum(.,na.rm=T)`, 
+`r GenoMetaDat%>%nrow()` (`r GenoMetaDat%>%nrow()/AKRO_BBSRI_Dlvry %>% filter(SW == CrntSW) %>% select(CHUM_SAMPLED) %>% sum(.,na.rm=T) *100`%) were extracted and amplified for the SNP marker panel. Of those 
+that were amplified, `r ((GenoMetaDat%>%nrow() -nrow(BadInds) - nDups)/AKRO_BBSRI_Dlvry %>% filter(SW == CrntSW) %>% select(CHUM_SAMPLED) %>% sum(.,na.rm=T))*100 %>% round(.,3)`% passed quality control filters (at least 80% of markers
+successfully genotyped and not duplicated). 
 
 ```{r SetupRuns, eval=T, echo=F}
 #starting proportions for the chains
@@ -464,8 +583,7 @@ plan(sequential)
 RubiasResMat<-do.call(rbind,RubiasRes)
 ```
 
-
-```{r Bootstrap models, eval=F, echo=T}
+```{r Bootstrap models, eval=F, echo=F}
 dir.create(file.path(paste("Output/",CrntYr,"/",CrntSW,"/Rubias_BootstrapModel",sep="")))
 #New Code to run BS models  
 MCMCreps <- 100000
@@ -681,9 +799,56 @@ knitr::kable(.,digits=c(0,0,3,3,3,3,3,3,2),caption=TabTitle,"html",align=c("l","
 }
 ```
 
+```{r SWresTab, echo = FALSE, message=FALSE,out.height='3in',out.width='4.5in',fig.align = 'center'}
+#dt("PP2", "Continued: Primer Probe file for chum salmon GTseq panel.")
+knitr::include_graphics(file.path(paste("./Output/",CrntYr,"/",CrntSW,"/","SW",CrntSW,"_TableAltVrs.png",sep="")))
+```
+
+In statistical week `r CrntSW`, `r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% slice_max(Mean) %>% select(Region) %>% unlist()` comprised the largest proportion of the chum salmon bycatch (`r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% slice_max(Mean) %>% select(Mean) %>% unlist() %>% {.*100} %>% round(.,1)`%). 
+
+`r if(any(Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% select(EstNum) %>% round(.,0) %>% {.==0})){paste("No chum salmon were caught from the ", Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% mutate(EstNum = round(EstNum,0)) %>% filter(EstNum == 0) %>% select(Region) %>% unlist() %>% paste(.,collapse=", ") %>% {sub(",([^,]*)$", " &\\1", .)},sep="")}`
+
+the largest  a total of - Total number of Western Alaska, Kotz Sound, Up/Mid Yukon
+- Total number of Asia fish
+- 
+
+\newpage
+# References
+<div id="refs"></div>
+
+\newpage
+
+# Appendix I - `r CrntYr` GSI Results 
+Weekly stock composition estimates of chum salmon bycatch from 
+the `r CrntYr` shoreside sector's Bering Sea and Aleutian Islands, 
+B-season pollock trawl fishery.
+
+```{r AppI,eval=T,echo=F , results='asis',out.width='6.5in'}
+files <- list.files(path = file.path(paste("./Output/",CrntYr,sep="")), recursive = T,pattern = "png", full.names = TRUE)%>%
+  grep(pattern="AltVrs",x=.,invert=F,value=T)
+  
+
+for (f in files) {
+  cat(paste0("![](", f, "){#id .class width=6in} \n
+             \n
+             \n
+             \n"))
+  }
+```
+
+\newpage
+
+\blandscape
+# Appendix II - Genetic loci information
+```{r PP1, echo = FALSE, message=FALSE,out.height='6.5in',out.width='9in',fig.align = 'left'}
+#dt("PP1", "Primer Probe file for chum salmon GTseq panel.")
+knitr::include_graphics("./MainData/LocusSummaryTab_1-42.png")
+```
+\newpage
+```{r PP2, echo = FALSE, message=FALSE,out.height='6.5in',out.width='9in',fig.align = 'left'}
+#dt("PP2", "Continued: Primer Probe file for chum salmon GTseq panel.")
+knitr::include_graphics("./MainData/LocusSummaryTab_43-84.png")
+```
+\elandscape
 
 
-
-# Appendix I: Methods
-## Genotyping
-## Genetic Stock Composition Estimates
