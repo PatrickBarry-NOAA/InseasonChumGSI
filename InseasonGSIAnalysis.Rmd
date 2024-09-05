@@ -22,7 +22,7 @@ bibliography: ./Bib/NOAA_GSI.bib
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
 
-CrntSW <- 25 #Current Stat week
+CrntSW <- 33 #Current Stat week
 CrntYr <- format(Sys.Date(),"%Y") #Get the current year
 RunRubias <- FALSE #On/Off for running the GSI analysis
 
@@ -196,8 +196,8 @@ cvoa <- sf::read_sf("./MainData/MapData/CVOA/CVOAa.shp") %>%
   st_shift_longitude()
 
 
-getNOAA.bathy(lon1 = -180, lon2 = -150, lat1 = 53, lat2 = 64, resolution=1) -> AKBath
-AKBath_xyz <- as.xyz(AKBath) %>%
+marmap::getNOAA.bathy(lon1 = -180, lon2 = -150, lat1 = 53, lat2 = 64, resolution=1) -> AKBath
+AKBath_xyz <- marmap::as.xyz(AKBath) %>%
   mutate(V1=V1+360)
 
 # function for a color gradient - note the white is under the map
@@ -444,6 +444,41 @@ Genos_Fldm_Alleles[Genos_Fldm_Alleles=="NA"]<-NA
 
 ```
 
+
+```{r ChangeAlleles, eval=F, echo=F}
+#Deal with BBSRI allele swap issues
+
+# Genos_Fldm_AllelesDummy <- Genos_Fldm_Alleles
+# 
+# AlleleList<-list()
+# 
+# for (i in 5:ncol(Genos_Fldm_AllelesDummy)){
+#   Alleles <- Genos_Fldm_AllelesDummy %>%
+#     select(all_of(i)) %>%
+#     table() %>%
+#     names() %>% unlist()
+#   
+#   AlleleSubDF = data.frame(Old = Alleles,
+#                            New = rev(Alleles))
+#   
+#   AlleleList[[i-4]]<- Genos_Fldm_AllelesDummy %>%
+#     select(all_of(i))%>%
+#     unlist() %>%
+#     {plyr::mapvalues(from = AlleleSubDF$Old,
+#                     to = AlleleSubDF$New,
+#                     x = .)}%>%
+#     as.vector()
+#   
+# }
+# 
+# Genos_Fldm_AllelesDummy<-bind_cols(Genos_Fldm_AllelesDummy[,1:4],do.call(cbind,AlleleList))
+# 
+# colnames(Genos_Fldm_AllelesDummy)<- colnames(Genos_Fldm_Alleles)
+
+```
+
+
+
 ```{r QC_input, eval=T, echo=F}
 #check for samples genotyped multiple times
 if(any(duplicated(Genos_Fldm_Alleles$indiv %>% {.[.!="NTC"]}))){
@@ -453,8 +488,6 @@ if(any(duplicated(Genos_Fldm_Alleles$indiv %>% {.[.!="NTC"]}))){
 nDups<- sum(duplicated(Genos_Fldm_Alleles$indiv %>% {.[.!="NTC"]}))
 
 ```
-
-
 
 ```{r NameFunkiness, eval=T, echo=F}
 
@@ -524,14 +557,14 @@ if(nrow(BadInds)>0){
 }
 
 
-CloseMatches <- rubias::close_matching_samples(D = Mixtures %>% 
+CloseMatches <- suppressWarnings( rubias::close_matching_samples(D = Mixtures %>% 
                                   as_tibble() %>% 
                                   mutate(sample_type = "reference", 
                                     collection = "CrntSW",
                                     repunit = "S"),
                                  gen_start_col = 5,
                                  min_frac_non_miss = 0.8,
-                                 min_frac_matching = 0.9)
+                                 min_frac_matching = 0.9) )
 
 
 # lapply(MixLoci[c(T,F)],function(x) Mixtures %>%
