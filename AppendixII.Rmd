@@ -1,0 +1,17 @@
+# Appendix II - `r CrntYr` GSI Results 
+Prior week stock composition estimates of chum salmon bycatch from 
+the `r CrntYr` shoreside sector's Bering Sea and Aleutian Islands, 
+B-season pollock trawl fishery. 
+
+```{r AppI,eval=T,echo=F , results='asis',out.width='4.75in'}
+files <- list.files(path = file.path(paste("./Output/",CrntYr,sep="")), recursive = T,pattern = "png", full.names = TRUE)%>%
+  grep(pattern="AltVrs",x=.,invert=F,value=T) %>%
+  grep(pattern = CrntSW,.,invert=T,value=T) #only print the non-current stat week results
+  
+for (f in files) {
+  cat(paste0("![](", f, "){#id .class width=4.75in} \n
+             \n
+             \n
+             \n"))
+}
+```
