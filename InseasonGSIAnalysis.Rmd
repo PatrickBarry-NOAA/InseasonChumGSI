@@ -65,8 +65,7 @@ subtitle: '`r paste("Results from Statistical Week ", CrntSW, sep="")`'
 
 In statistical week `r CrntSW` of the Bering Sea Aleutian Islands (BSAI)
 walleye pollock trawl fishery there were
-`r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon caught by the shoreside sector.  
-Of that total catch, `r AKRO_BBSRI_Dlvry$CHUM_SAMPLED %>% sum(.,na.rm=T)`
+`r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon caught by the shoreside sector. Of that total catch, `r AKRO_BBSRI_Dlvry$CHUM_SAMPLED %>% sum(.,na.rm=T)`
 were sampled, `r ProcessRate$nPrcsd %>% sum(.,na.rm=T)` were selected for genotyping, 
 and `r ProcessRate$nGenod %>% sum(.,na.rm=T)` (`r (ProcessRate$nGenod %>% sum(.,na.rm=T) / AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) %>% {.*100} %>% round(.,1)`%)  were successfully genotyped to determine the 
 genetic stock composition of the bycatch. `r ifelse(AKRO_BBSRI_DlvrySum$GenoRate[-length(AKRO_BBSRI_DlvrySum)] %>% {.[!is.na(.)]} %>% dist(.) %>% {any(.>0.05)}, "Genotyping rates varied substantially (>5%) across collections (processing plants & target sampling rates) suggesting that the collection of samples may not be representative of the overall bycatch. Samples were analyzed with the understanding that some bias may exist in the spatial and temporal coverage of the samples.", "")` `r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% slice_max(Mean) %>% select(Region) %>% unlist()` comprised the largest proportion of the chum salmon bycatch (`r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% slice_max(Mean) %>% select(Mean) %>% unlist() %>% {.*100} %>% round(.,1)`%), 
