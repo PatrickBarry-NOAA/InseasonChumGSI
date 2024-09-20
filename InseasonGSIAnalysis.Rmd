@@ -275,7 +275,7 @@ individuals are identified to have matching multilocus genotpes (>95% similarity
 the indviduals with fewer scored loci was dropped. Genetic stock identification 
 was performed with the conditional 
 genetic stock identification model in the R package *rubias*
-[@MoranAnderson2019] following the methods used in NOAA's annual reports.
+[@MoranAnderson2019] following the methods used in NOAA's annual bycatch reports.
 Briefly, baseline populations were
 grouped into seven regions adapted from [-@Gray2010]: Southeast Asia (SE Asia), 
 Northeast Asia (NE Asia), Kotzebue Sound, Western Alaska
@@ -288,12 +288,12 @@ in region $g$, and $G$ is the number of regions.
 To ensure convergence to the posterior 
 distribution, seven separate MCMC chains of 100,000 
 iterations (burn-in of 50,000) of the non-bootstrapped model were 
-run, which each chain starting at disparate values of stock 
+run, with each chain starting at disparate values of stock 
 proportions; configured such that for each chain 95% of the 
 mixture came from a single designated reporting group (with 
 probability equally distributed among the populations within 
 that reporting group) and the remaining 5% equally distributed 
-among remaining reporting groups.The convergence of chains 
+among remaining reporting groups. The convergence of chains 
 for each reporting group estimate was assessed with the 
 Gelman-Rubin statistic [@GelmanRubin1992] estimated with 
 the gelman.diag function in the coda library [@Plummer2006] 
