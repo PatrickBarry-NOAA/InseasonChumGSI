@@ -247,7 +247,7 @@ and genotyping data were sent to the AFSC genetics program for analysis.
 ## Genotyping
 All tissue samples collected were sent to the
 BBSRI staffed genetics laboratory in Dutch Harbor 
-for processing. Genomic DNA was extracted from dried finclips 
+for processing. Genomic DNA was extracted from dried fin clips 
 with Macherey-Nagel (Allentown, PA) NucleoSpin Tissue
 kits. Extracted DNA was amplified for 96 single nucleotide polymorphism markers (SNPs)
 with a Fluidigm (San Francisco, CA) 
@@ -271,7 +271,7 @@ temporal groups (statistical week) from non-debriefed observer data
 provided by the Alaska Regional Office and linked to genetic samples
 by BBSRI. Individual samples with fewer than 80% of their multilocus 
 genotype scored were dropped from analyses. Additionally, if
-individuals are identified to have matching multilocus genotpes (>95% similarity)
+individuals are identified to have matching multilocus genotypes (>95% similarity)
 the indviduals with fewer scored loci was dropped. Genetic stock identification 
 was performed with the conditional 
 genetic stock identification model in the R package *rubias*
