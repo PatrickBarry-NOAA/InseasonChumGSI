@@ -272,7 +272,7 @@ provided by the Alaska Regional Office and linked to genetic samples
 by BBSRI. Individual samples with fewer than 80% of their multilocus 
 genotype scored were dropped from analyses. Additionally, if
 individuals are identified to have matching multilocus genotypes (>95% similarity)
-the indviduals with fewer scored loci was dropped. Genetic stock identification 
+the individuals with fewer scored loci was dropped. Genetic stock identification 
 was performed with the conditional 
 genetic stock identification model in the R package *rubias*
 [@MoranAnderson2019] following the methods used in NOAA's annual bycatch reports.
