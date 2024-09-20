@@ -236,8 +236,8 @@ Port samplers, employed by BBSRI, sampled pollock hauls delivered to processing
 plants in Dutch Harbor and Akutan. The target sampling rate for statistical 
 week `r CrntSW` was 
 `r ifelse(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% length() > 1,"variable","fixed")`
-with
-`r ifelse(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% length() > 1, paste("rates ranging from to 1 in ",AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% max(.), " to 1 in ", AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% min(.), " chum salmon sampled (Table 1)",sep=""), paste("at 1 in ", AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)]," chum salmon sampled (Table 1)",sep=""))`. After NMFS observers 
+
+`r ifelse(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% length() > 1, paste("rates ranging from to 1 in ",AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% max(.), " to 1 in ", AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% min(.), " chum salmon (Table 1)",sep=""), paste("at 1 in ", AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)]," chum salmon sampled (Table 1)",sep=""))`. After NMFS observers 
 had processed the offload, BBSRI technicians took a length measurement, scale sample for 
 age estimation, and a fin clip for genetic analyses. Fin clips were stapled 
 onto a Whatman card labelled with haul-level information from the 
