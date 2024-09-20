@@ -129,7 +129,7 @@ composition. This report outlines the results the analysis of the chum
 salmon bycatch from statistical week `r CrntSW` (`r AKRO_Obs%>% filter(SW == CrntSW) %>% slice_min(order_by=DATE)%>% slice_head(n=1) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")` - 
 `r AKRO_Obs%>% filter(SW == min(AKRO_ObsSum$SW)) %>% slice_max(order_by=DATE)%>% slice_head(n=1) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")`).
 
-```{r Map, eval=T, echo=F, fig.cap='Map of National Marine Fisheries Service management areas within the Bering Sea and Aleutian Islands. Colored areas indicate those areas from which chum salmon bycatch has historically occured.',fig.width=4}
+```{r Map, eval=T, echo=F, fig.cap='Map of National Marine Fisheries Service management areas within the Bering Sea and Aleutian Islands. Colored areas indicate management areas where chum salmon bycatch has historically occured.',fig.width=4}
 
 CrustaceanOrange2='#FF8300'
 WavesTeal2='#008998'
