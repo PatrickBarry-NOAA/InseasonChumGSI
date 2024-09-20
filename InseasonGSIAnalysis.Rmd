@@ -119,11 +119,11 @@ Currently, annual estimates of genetic stock composition are produced by
 the genetics program of NOAA's 
 Alaska Fishery Science Center (AFSC) and presented to 
 the North Pacific Fisheries Management Council (NPFMC) at their April Council meeting (~3 months
-after the end of the B season). Within the fishery all chum salmon bycatch
+after the end of the B season). Within the fishery, all chum salmon bycatch
 is enumerated by the North Pacific Observer Program and 1 in 30 are sampled for length, weight, sex, 
 and a tissue sample and a scale are sent to the AFSC 
 genetics program for analysis. In 2024, a project was initiated by Bristol Bay
-Salmon Research Institute (BBSRI) to sample the bycatch from the shoreside 
+Salmon Research Institute (BBSRI) to port sample the bycatch from the shoreside 
 sector of the fleet in order to obtain weekly estimates of genetic stock 
 composition. This report outlines the results the analysis of the chum
 salmon bycatch from statistical week `r CrntSW` (`r AKRO_Obs%>% filter(SW == CrntSW) %>% slice_min(order_by=DATE)%>% slice_head(n=1) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")` - 
