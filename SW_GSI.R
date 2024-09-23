@@ -198,7 +198,7 @@ CloseMatches <- suppressWarnings( rubias::close_matching_samples(D = Mixtures %>
                                                                           repunit = "S"),
                                                                  gen_start_col = 5,
                                                                  min_frac_non_miss = 0.8,
-                                                                 min_frac_matching = 0.9) )
+                                                                 min_frac_matching = 0.95) )
 
 
 #starting proportions for the chains

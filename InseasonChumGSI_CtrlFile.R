@@ -1,7 +1,8 @@
 #### SW Analysis Control File ####
-
+library(stringr)
+library(tidyverse)
 #Set the Current Statistical Week
-CrntSW <- 33 
+CrntSW <- 36 
 CrntYr <- format(Sys.Date(),"%Y") #Get the current year
 
 #Run the GSI analysis on the stat week
