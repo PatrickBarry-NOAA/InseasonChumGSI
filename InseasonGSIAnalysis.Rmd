@@ -119,17 +119,18 @@ Currently, annual estimates of genetic stock composition are produced by
 the genetics program of NOAA's 
 Alaska Fishery Science Center (AFSC) and presented to 
 the North Pacific Fisheries Management Council (NPFMC) at their April Council meeting (~3 months
-after the end of the B season). Within the fishery all chum salmon bycatch
+after the end of the B season). Within the fishery, all chum salmon bycatch
 is enumerated by the North Pacific Observer Program and 1 in 30 are sampled for length, weight, sex, 
 and a tissue sample and a scale are sent to the AFSC 
 genetics program for analysis. In 2024, a project was initiated by Bristol Bay
+
 Science Research Institute (BBSRI) to sample the bycatch from the shoreside 
 sector of the fleet in order to obtain weekly estimates of genetic stock 
 composition. This report outlines the results the analysis of the chum
 salmon bycatch from statistical week `r CrntSW` (`r AKRO_Obs%>% filter(SW == CrntSW) %>% slice_min(order_by=DATE)%>% slice_head(n=1) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")` - 
 `r AKRO_Obs%>% filter(SW == CrntSW) %>% slice_max(order_by=DATE)%>% slice_head(n=1) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b")`).
 
-```{r Map, eval=T, echo=F, fig.cap='Map of National Marine Fisheries Service management areas within the Bering Sea and Aleutian Islands. Colored areas indicate those areas from which chum salmon bycatch has historically occured.',fig.width=4}
+```{r Map, eval=T, echo=F, fig.cap='Map of National Marine Fisheries Service management areas within the Bering Sea and Aleutian Islands. Colored areas indicate management areas where chum salmon bycatch has historically occurred.',fig.width=4}
 
 CrustaceanOrange2='#FF8300'
 WavesTeal2='#008998'
@@ -236,8 +237,8 @@ Port samplers, employed by BBSRI, sampled pollock hauls delivered to processing
 plants in Dutch Harbor and Akutan. The target sampling rate for statistical 
 week `r CrntSW` was 
 `r ifelse(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% length() > 1,"variable","fixed")`
-with
-`r ifelse(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% length() > 1, paste("rates ranging from to 1 in ",AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% max(.), " to 1 in ", AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% min(.), " chum salmon sampled (Table 1)",sep=""), paste("at 1 in ", AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)]," chum salmon sampled (Table 1)",sep=""))`. After NMFS observers 
+
+`r ifelse(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% length() > 1, paste("rates ranging from to 1 in ",AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% max(.), " to 1 in ", AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% min(.), " chum salmon (Table 1)",sep=""), paste("at 1 in ", AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)]," chum salmon sampled (Table 1)",sep=""))`. After NMFS observers 
 had processed the offload, BBSRI technicians took a length measurement, scale sample for 
 age estimation, and a fin clip for genetic analyses. Fin clips were stapled 
 onto a Whatman card labelled with haul-level information from the 
@@ -247,7 +248,7 @@ and genotyping data were sent to the AFSC genetics program for analysis.
 ## Genotyping
 All tissue samples collected were sent to the
 BBSRI staffed genetics laboratory in Dutch Harbor 
-for processing. Genomic DNA was extracted from dried finclips 
+for processing. Genomic DNA was extracted from dried fin clips 
 with Macherey-Nagel (Allentown, PA) NucleoSpin Tissue
 kits. Extracted DNA was amplified for 96 single nucleotide polymorphism markers (SNPs)
 with a Fluidigm (San Francisco, CA) 
@@ -271,11 +272,11 @@ temporal groups (statistical week) from non-debriefed observer data
 provided by the Alaska Regional Office and linked to genetic samples
 by BBSRI. Individual samples with fewer than 80% of their multilocus 
 genotype scored were dropped from analyses. Additionally, if
-individuals are identified to have matching multilocus genotpes (>95% similarity)
-the indviduals with fewer scored loci was dropped. Genetic stock identification 
+individuals are identified to have matching multilocus genotypes (>95% similarity)
+the individuals with fewer scored loci was dropped. Genetic stock identification 
 was performed with the conditional 
 genetic stock identification model in the R package *rubias*
-[@MoranAnderson2019] following the methods used in NOAA's annual reports.
+[@MoranAnderson2019] following the methods used in NOAA's annual bycatch reports.
 Briefly, baseline populations were
 grouped into seven regions adapted from [-@Gray2010]: Southeast Asia (SE Asia), 
 Northeast Asia (NE Asia), Kotzebue Sound, Western Alaska
@@ -288,12 +289,12 @@ in region $g$, and $G$ is the number of regions.
 To ensure convergence to the posterior 
 distribution, seven separate MCMC chains of 100,000 
 iterations (burn-in of 50,000) of the non-bootstrapped model were 
-run, which each chain starting at disparate values of stock 
+run, with each chain starting at disparate values of stock 
 proportions; configured such that for each chain 95% of the 
 mixture came from a single designated reporting group (with 
 probability equally distributed among the populations within 
 that reporting group) and the remaining 5% equally distributed 
-among remaining reporting groups.The convergence of chains 
+among remaining reporting groups. The convergence of chains 
 for each reporting group estimate was assessed with the 
 Gelman-Rubin statistic [@GelmanRubin1992] estimated with 
 the gelman.diag function in the coda library [@Plummer2006] 
