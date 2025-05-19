@@ -2,10 +2,11 @@
 title: Inseason analysis of chum salmon (*Oncorhynchus* *keta*) bycatch from the shoreside
   sector of the Bering Sea Aleutian Islands walleye pollock (*Gadus* *chalcogrammus*)
   trawl fishery
-author: "Patrick Barry, Jamie Musbach, Abby Duffy, and Wes Larson"
+author: "Patrick Barry, Jamie Musbach, Abby Duffy, Jason Smith, Jordan Head, and Wes Larson"
 date: "`r paste('Report generated on: ', Sys.Date(),sep='')`"
 output:
   pdf_document:
+    keep_tex: true
     toc: yes
     toc_depth: '2'
     includes:
@@ -18,8 +19,7 @@ csl: ./Bib/american-fisheries-society.csl
 knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
 
 #CrntSW <- 33 # optionally render manually by setting SW
-CrntYr <- format(Sys.Date(),"%Y") #Get the current year
-
+CrntYr <- 2024#format(Sys.Date(),"%Y") #Get the current year
 #dir.create(file.path(paste("Output/",CrntYr,"/",CrntSW,sep="")))
 
 library(tidyverse)
@@ -68,11 +68,16 @@ walleye pollock trawl fishery there were
 `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon caught by the shoreside sector. Of that total catch, `r AKRO_BBSRI_Dlvry$CHUM_SAMPLED %>% sum(.,na.rm=T)`
 were sampled, `r ProcessRate$nPrcsd %>% sum(.,na.rm=T)` were selected for genotyping, 
 and `r ProcessRate$nGenod %>% sum(.,na.rm=T)` (`r (ProcessRate$nGenod %>% sum(.,na.rm=T) / AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) %>% {.*100} %>% round(.,1)`% of the total catch)  were successfully genotyped to determine the 
-genetic stock composition of the bycatch. `r ifelse(AKRO_BBSRI_DlvrySum$GenoRate[-length(AKRO_BBSRI_DlvrySum)] %>% {.[!is.na(.)]} %>% dist(.) %>% {any(.>0.05)}, "Genotyping rates varied substantially (>5%) across collections (processing plants & target sampling rates) suggesting that the collection of samples may not be representative of the overall bycatch. Samples were analyzed with the understanding that some bias may exist in the spatial and temporal coverage of the samples.", "")` `r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% slice_max(Mean) %>% select(Region) %>% unlist()` comprised the largest proportion of the chum salmon bycatch (`r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% slice_max(Mean) %>% select(Mean) %>% unlist() %>% {.*100} %>% round(.,1)`%), 
-`r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% slice_max(EstNum) %>% select(EstNum) %>% unlist() %>% round(.,0)` chum salmon. Western Alaska (Coastal Western Alaska, Kotzebue Sound, 
+genetic stock composition of the bycatch. `r ifelse(AKRO_BBSRI_DlvrySum$GenoRate[-length(AKRO_BBSRI_DlvrySum)] %>% {.[!is.na(.)]} %>% dist(.) %>% {any(.>0.05)}, "Genotyping rates varied substantially (>5%) across collections (processing plants & target sampling rates) suggesting that the collection of samples may not be representative of the overall bycatch. Samples were analyzed with the understanding that some bias may exist in the spatial and temporal coverage of the samples.", "")` `r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% slice_max(Mean) %>% select(Region) %>% unlist()` comprised the largest proportion of the chum salmon bycatch (`r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% slice_max(Mean) %>% select(Mean) %>% unlist() %>% {.*100} %>% round(.,1)`%),`r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% slice_max(EstNum) %>% select(EstNum) %>% unlist() %>% round(.,0)` chum salmon. Western Alaska (Coastal Western Alaska, Kotzebue Sound, 
 and Upper/Middle Yukon combined) comprised `r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% filter(grepl(pattern = "W Alaska|Kotzebue|Yukon", Region)) %>% select(Mean) %>% sum(.,na.rm=T) %>% unlist() %>% {.*100} %>% round(.,1)`% 
-of the bycatch (`r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% filter(grepl(pattern = "W Alaska|Kotzebue|Yukon", Region)) %>% select(EstNum) %>% sum(.,na.rm=T) %>% unlist() %>% round(.,0)` fish). `r ifelse(PrntByctchSW==T, paste(" Since statistical week ", min(AKRO_ObsSum$SW,na.rm=T)," a total of ", AKRO_Obs$CHUM_RETENTION_COUNT %>% sum(.,na.rm=T) %>% formatC(.,big.mark=",",format="d"), " chum salmon have been caught by the shoreside sector, with the majority of chum salmon being caught in NMFS area ", AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total") %>% group_by(NMFS_AREA) %>% summarize(nChum = sum(nChum,na.rm=T)) %>% slice_max(nChum) %>% select(NMFS_AREA) %>% unlist(),".",sep=""))`  
+of the bycatch (`r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>% filter(grepl(pattern = "W Alaska|Kotzebue|Yukon", Region)) %>% select(EstNum) %>% sum(.,na.rm=T) %>% unlist() %>% round(.,0)` fish). `r ifelse(PrntByctchSW==T, paste(" Since statistical week ", min(AKRO_ObsSum$SW,na.rm=T)," a total of ", AKRO_Obs$CHUM_RETENTION_COUNT %>% sum(.,na.rm=T) %>% formatC(.,big.mark=",",format="d"), " chum salmon have been caught by the shoreside sector, with the majority of chum salmon being caught in NMFS area ", AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total") %>% group_by(NMFS_AREA) %>% summarize(nChum = sum(nChum,na.rm=T)) %>% slice_max(nChum) %>% select(NMFS_AREA) %>% unlist(),".",sep=""),"")`
 
+
+```{r SumTab, echo = FALSE, message=FALSE,out.width='4in',fig.align='center'}
+
+knitr::include_graphics(file.path(paste("./Output/",CrntYr,"/",CrntSW,"/","SW",CrntSW,"_TableAltVrs.png",sep="")))
+
+```
 
 \newpage
 
@@ -96,6 +101,12 @@ AKRO_Obs <- readxl::read_xls(file.path(paste("./MainData/AKRO/",CrntYr,"/",File2
   mutate(DATE = format(DELIVERY_END_DATE,"%d-%m-%Y"))%>%
   mutate(SW = statweek(DATE)) %>%
   filter(SW <= CrntSW)
+
+#If we are combining weeks do so now.
+if(CmbWk==TRUE){
+  AKRO_Obs <- AKRO_Obs %>%
+    mutate(SW = ifelse(SW %in% SW2Cmb, CrntSW,SW))
+}
 
 AKRO_ObsSum <- AKRO_Obs %>%
   group_by(SW,NMFS_AREA) %>%
@@ -334,7 +345,7 @@ PrntByctchSW <- ifelse(length(unique(AKRO_ObsSum$SW)) > 1, TRUE,FALSE)
 
 `r ifelse(AKRO_BBSRI_Dlvry$SW %>% unique() %>% .[!is.na(.)] %>% length() > 1, paste(" Since statistical week ", min(AKRO_Obs$SW)," (",AKRO_Obs%>% filter(SW == min(AKRO_ObsSum$SW)) %>% slice_min(order_by=DATE) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b"),") ",  AKRO_Obs$CHUM_RETENTION_COUNT %>% sum(.,na.rm=T) %>% formatC(.,big.mark = ","), " chum salmon have been incidentally caught by the shoreside sector. ",sep=""),"")`In the current statistical 
 week (`r CrntSW`), there were 
-`r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon caught in `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nDeliveries) %>% sum() %>% formatC(.,big.mark = ",")  ` deliveries`r ifelse((AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) < (AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==(CrntSW-1))%>%ungroup() %>% select(nChum) %>% sum()) & (AKRO_BBSRI_Dlvry$SW %>% unique() %>% .[!is.na(.)] %>% length() > 1),", a decrease in total bycatch from the previous week (Figure 2)",ifelse((AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) > (AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==(CrntSW-1))%>%ungroup() %>% select(nChum) %>% sum()) & (AKRO_BBSRI_Dlvry$SW %>% unique() %>% .[!is.na(.)] %>% length() > 1) ,", an increase in total bycatch from the previous week (Figure 2)",""))`. The majority of chum salmon were caught in NMFS Area `r AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)%>% unlist()` (Figure 1). `r ifelse(AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA) == AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),paste("Similarly, the largest chum rate (chum per delivery) was also in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""),paste("Despite the largest number of chum salmon being caught in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)," the highest rate of chum salmon bycatch was in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""))`. `r ifelse(PrntByctchSW==T, paste("A total of ", AKRO_ObsSum$nChum %>% sum(.,na.rm=T) %>% formatC(.,big.mark=",",format="d"), " chum salmon have been caught since statistical week ", min(AKRO_ObsSum$SW,na.rm=T),". With the majority of chum salmon being caught in NMFS area ", AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total") %>% group_by(NMFS_AREA) %>% summarize(nChum = sum(nChum,na.rm=T)) %>% slice_max(nChum) %>% select(NMFS_AREA) %>% unlist(),".",sep="")) ` 
+`r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon caught in `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nDeliveries) %>% sum() %>% formatC(.,big.mark = ",")  ` deliveries`r ifelse((AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) < (AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==(CrntSW-1))%>%ungroup() %>% select(nChum) %>% sum()) & (AKRO_BBSRI_Dlvry$SW %>% unique() %>% .[!is.na(.)] %>% length() > 1),", a decrease in total bycatch from the previous week (Figure 2)",ifelse((AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) > (AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==(CrntSW-1))%>%ungroup() %>% select(nChum) %>% sum()) & (AKRO_BBSRI_Dlvry$SW %>% unique() %>% .[!is.na(.)] %>% length() > 1) ,", an increase in total bycatch from the previous week (Figure 2)",""))`. The majority of chum salmon were caught in NMFS Area `r AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)%>% unlist()` (Figure 1). `r ifelse(AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA) == AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),paste("Similarly, the largest chum rate (chum per delivery) was also in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""),paste("Despite the largest number of chum salmon being caught in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)," the highest rate of chum salmon bycatch was in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""))`. `r ifelse(PrntByctchSW==T, paste("A total of ", AKRO_ObsSum$nChum %>% sum(.,na.rm=T) %>% formatC(.,big.mark=",",format="d"), " chum salmon have been caught since statistical week ", min(AKRO_ObsSum$SW,na.rm=T),". With the majority of chum salmon being caught in NMFS area ", AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total") %>% group_by(NMFS_AREA) %>% summarize(nChum = sum(nChum,na.rm=T)) %>% slice_max(nChum) %>% select(NMFS_AREA) %>% unlist(),".",sep=""),"") ` 
 
 
 ```{r AKRO_Bycatch, eval=PrntByctchSW, echo=F, fig.cap="Number of chum salmon caught by the shoreside sector of the Bering Sea pollock trawl fishery by statistical week. Weekly totals for which fewer than 4 vessels made deliveries have been omitted.",fig.width=6,fig.height=3}
@@ -360,6 +371,12 @@ BBSRI_Dlvry <- readxl::read_xlsx(file.path(paste("./MainData/BBSRI/",CrntYr,"/SW
   mutate(SW = statweek(DATE2))%>%
   rename('PROCESSOR_PERMIT' = 'PROCESSOR',
          'OFFLOAD_NUMBER' = 'OFFLOAD_NO')
+
+#If we are combining weeks do so now.
+if(CmbWk==TRUE){
+  BBSRI_Dlvry <- BBSRI_Dlvry %>%
+    mutate(SW = ifelse(SW %in% SW2Cmb, CrntSW,SW))
+}
 
 #Bind to obs data
 AKRO_BBSRI_Dlvry <- AKRO_Obs %>%
@@ -794,6 +811,19 @@ knitr::kable(.,digits=c(0,0,3,3,3,3,3,3,2),caption=TabTitle,"html",align=c("l","
 write_delim(file = file.path(paste("./Output/",CrntYr,"/",CrntSW,"/GSIresults_SW",CrntSW,".txt",sep="")),
           x= Res_temp,
           delim="\t")
+
+
+#SamplingSummary
+AKRO_BBSRI_DlvrySum %>%
+  filter(PLANT_NAME == "Total")%>%
+  mutate(SW = CrntSW)%>%
+  rename('nGTd' = 'nPrcsd' , 
+         'nAnalyzed' = 'nGenod' )%>%
+  select(-c(TARGET_SAMPLE_RATE,GenoRate,RlzdSampRt))%>%
+write.csv(x = .,
+            file = file.path(paste("./Output/",CrntYr,"/",CrntSW,"/SW",CrntSW,"_SamplingDetails.csv",sep="")),
+            row.names=F,
+            quote =F)
 ```
 
 ## Stock Specific Catches
@@ -836,7 +866,7 @@ PriorRes <- ifelse(length(GsiRes2Read)>1,"TRUE","FALSE")
 ```
 
 
-```{r PriorResGraph, eval=PriorRes, echo=F, fig.height=6,fig.width=7, fig.cap="Figure 3: Chum salmon bycatch proportion (A) and total number of fish (B) for the B season of the pollock trawl fishery."}
+```{r PriorResGraph, eval=PriorRes, echo=F, fig.height=6,fig.width=7, fig.cap="Chum salmon bycatch proportion (A) and total number of fish (B) for the B season of the pollock trawl fishery."}
 GsiRes2Read <- list.files(file.path(paste("./Output/",CrntYr,"/",sep="")),recursive=T,full.names = T)%>%
   grep(pattern="GSIresults_",value=T)
 
@@ -892,7 +922,7 @@ cowplot::plot_grid(pProp,
 ```
 
 
-`r ifelse(PrntByctchSW==T, paste("Of the ", AKRO_Obs$CHUM_RETENTION_COUNT %>% sum(.,na.rm=T) %>% formatC(.,big.mark=",",format="d"), " chum salmon caught by the shoreside sector since statistical week ", min(AKRO_ObsSum$SW,na.rm=T), ", the largest contributing genetic group to the bycatch has been the ", GSI_ResSWs %>% group_by(Region) %>% summarize(nChum = sum(EstNum,na.rm=T)) %>% slice_max(nChum) %>% select(Region) %>% unlist(),", with a point estimate of ", GSI_ResSWs %>% group_by(Region) %>% summarize(nChum = sum(EstNum,na.rm=T)) %>% slice_max(nChum) %>% select(nChum) %>% unlist() %>% formatC(.,big.mark=",",format="f",digits=0)," chum salmon."  ,sep=""))` `r ifelse(PrntByctchSW==T, paste("Since the start of the B season, the Western Alaska group has comprised an average of ", GSI_ResSWs %>% filter(Region == "W Alaska") %>% select(Mean) %>% unlist() %>% mean(.) %>% round(.,3) %>% {.*100} ,"% of the bycatch, with the shoreside sector having caught a total of ", GSI_ResSWs %>% filter(Region == "W Alaska") %>% select(EstNum) %>% unlist() %>% sum(.,na.rm=T) %>% round(.,0) %>% formatC(.,big.mark=",",format="d"), " chum salmon from this genetic group. The Kotzebue Sound regional group made up an average of ", GSI_ResSWs %>% filter(Region == "Kotzebue Sound") %>% select(Mean) %>% unlist() %>% mean(.) %>% round(.,3) %>% {.*100},"% of the bycatch over the ",length(GSIResSW)," weeks, with a total of ",GSI_ResSWs %>% filter(Region == "Kotzebue Sound") %>% select(EstNum) %>% unlist() %>% sum(.,na.rm=T) %>% round(.,0) %>% formatC(.,big.mark=",",format="d"), " chum salmon harvested to date. The Upper/Middle Yukon group accounted for an average of ", GSI_ResSWs %>% filter(Region == "Up/Mid Yukon") %>% select(Mean) %>% unlist() %>% mean(.) %>% round(.,3) %>% {.*100},"% of the chum salmon bycatch, with ", GSI_ResSWs %>% filter(Region == "Up/Mid Yukon") %>% select(EstNum) %>% unlist() %>% sum(.,na.rm=T) %>% round(.,0) %>% formatC(.,big.mark=",",format="d"), " fish harvested since statistical week ",min(GSIResSW),sep=""),"")`. 
+`r ifelse(PrntByctchSW==T, paste("Of the ", AKRO_Obs$CHUM_RETENTION_COUNT %>% sum(.,na.rm=T) %>% formatC(.,big.mark=",",format="d"), " chum salmon caught by the shoreside sector since statistical week ", min(AKRO_ObsSum$SW,na.rm=T), ", the largest contributing genetic group to the bycatch has been the ", GSI_ResSWs %>% group_by(Region) %>% summarize(nChum = sum(EstNum,na.rm=T)) %>% slice_max(nChum) %>% select(Region) %>% unlist(),", with a point estimate of ", GSI_ResSWs %>% group_by(Region) %>% summarize(nChum = sum(EstNum,na.rm=T)) %>% slice_max(nChum) %>% select(nChum) %>% unlist() %>% formatC(.,big.mark=",",format="f",digits=0)," chum salmon."  ,sep=""),"")` `r ifelse(PrntByctchSW==T, paste("Since the start of the B season, the Western Alaska group has comprised an average of ", GSI_ResSWs %>% filter(Region == "W Alaska") %>% select(Mean) %>% unlist() %>% mean(.) %>% round(.,3) %>% {.*100} ,"% of the bycatch, with the shoreside sector having caught a total of ", GSI_ResSWs %>% filter(Region == "W Alaska") %>% select(EstNum) %>% unlist() %>% sum(.,na.rm=T) %>% round(.,0) %>% formatC(.,big.mark=",",format="d"), " chum salmon from this genetic group. The Kotzebue Sound regional group made up an average of ", GSI_ResSWs %>% filter(Region == "Kotzebue Sound") %>% select(Mean) %>% unlist() %>% mean(.) %>% round(.,3) %>% {.*100},"% of the bycatch over the ",length(GSIResSW)," weeks, with a total of ",GSI_ResSWs %>% filter(Region == "Kotzebue Sound") %>% select(EstNum) %>% unlist() %>% sum(.,na.rm=T) %>% round(.,0) %>% formatC(.,big.mark=",",format="d"), " chum salmon harvested to date. The Upper/Middle Yukon group accounted for an average of ", GSI_ResSWs %>% filter(Region == "Up/Mid Yukon") %>% select(Mean) %>% unlist() %>% mean(.) %>% round(.,3) %>% {.*100},"% of the chum salmon bycatch, with ", GSI_ResSWs %>% filter(Region == "Up/Mid Yukon") %>% select(EstNum) %>% unlist() %>% sum(.,na.rm=T) %>% round(.,0) %>% formatC(.,big.mark=",",format="d"), " fish harvested since statistical week ",min(GSIResSW),sep=""),"")`. 
 
 
 \newpage

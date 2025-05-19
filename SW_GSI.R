@@ -33,7 +33,7 @@ FileWeeks <- AKRO_Files %>%
   format(.,"%d-%m-%Y")%>%
   statweek(.)
 
-File2Read <- AKRO_Files[which.min(abs(CrntSW-FileWeeks)) ]
+File2Read <- AKRO_Files[which.max(FileWeeks) ] #AKRO_Files[which.min(abs(CrntSW-FileWeeks)) ] #Always take the most recent file
 
 AKRO_Obs <- readxl::read_xls(file.path(paste("./MainData/AKRO/",CrntYr,"/",File2Read,sep=""))) %>%
   mutate(DATE = format(DELIVERY_END_DATE,"%d-%m-%Y"))%>%
