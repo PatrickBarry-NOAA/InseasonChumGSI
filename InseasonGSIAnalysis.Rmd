@@ -19,7 +19,7 @@ csl: ./Bib/american-fisheries-society.csl
 knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
 
 #CrntSW <- 33 # optionally render manually by setting SW
-CrntYr <- 2024#format(Sys.Date(),"%Y") #Get the current year
+CrntYr <- format(Sys.Date(),"%Y") #Get the current year
 #dir.create(file.path(paste("Output/",CrntYr,"/",CrntSW,sep="")))
 
 library(tidyverse)
@@ -60,7 +60,7 @@ subtitle: '`r paste("Results from Statistical Week ", CrntSW, sep="")`'
 
 
 # Summary
-```{r exec-summary, echo = FALSE, ref.label = c("readAKRO", "AKROsummary","BBSRIsampling","GTdat","QC_input","NameFunkiness","SampGeno","SetupRuns", "BSmodelClean")}
+```{r exec-summary, echo = FALSE, ref.label = c("readAKRO", "AKROsummary","BBSRIsampling","GTdat","PositiveControl","QC_input","NameFunkiness","SampGeno","SetupRuns", "BSmodelClean")}
 ```
 
 In statistical week `r CrntSW` of the Bering Sea Aleutian Islands (BSAI)
@@ -247,9 +247,7 @@ ggplot() +
 Port samplers, employed by BBSRI, sampled pollock hauls delivered to processing
 plants in Dutch Harbor and Akutan. The target sampling rate for statistical 
 week `r CrntSW` was 
-`r ifelse(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% length() > 1,"variable","fixed")`
-
-`r ifelse(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% length() > 1, paste("rates ranging from to 1 in ",AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% max(.), " to 1 in ", AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% min(.), " chum salmon (Table 1)",sep=""), paste("at 1 in ", AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)]," chum salmon sampled (Table 1)",sep=""))`. After NMFS observers 
+`r ifelse(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% length() > 1,"variable","fixed")` `r ifelse(AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% length() > 1, paste("rates ranging from to 1 in ",AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% max(.), " to 1 in ", AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)] %>% min(.), " chum salmon (Table 1)",sep=""), paste("at 1 in ", AKRO_BBSRI_Dlvry$TARGET_SAMPLE_RATE %>% unique() %>% .[!is.na(.)]," chum salmon sampled (Table 1)",sep=""))`. After NMFS observers 
 had processed the offload, BBSRI technicians took a length measurement, scale sample for 
 age estimation, and a fin clip for genetic analyses. Fin clips were stapled 
 onto a Whatman card labelled with haul-level information from the 
@@ -343,9 +341,7 @@ AKRO_ObsSum <- bind_rows(AKRO_ObsSum %>% mutate(NMFS_AREA = as.character(NMFS_AR
 PrntByctchSW <- ifelse(length(unique(AKRO_ObsSum$SW)) > 1, TRUE,FALSE)
 ```
 
-`r ifelse(AKRO_BBSRI_Dlvry$SW %>% unique() %>% .[!is.na(.)] %>% length() > 1, paste(" Since statistical week ", min(AKRO_Obs$SW)," (",AKRO_Obs%>% filter(SW == min(AKRO_ObsSum$SW)) %>% slice_min(order_by=DATE) %>% select(DATE)%>%unlist() %>% as.Date(.,"%d-%m-%Y") %>% format(.,"%d %b"),") ",  AKRO_Obs$CHUM_RETENTION_COUNT %>% sum(.,na.rm=T) %>% formatC(.,big.mark = ","), " chum salmon have been incidentally caught by the shoreside sector. ",sep=""),"")`In the current statistical 
-week (`r CrntSW`), there were 
-`r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum() %>% formatC(.,big.mark = ",")` chum salmon caught in `r AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nDeliveries) %>% sum() %>% formatC(.,big.mark = ",")  ` deliveries`r ifelse((AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) < (AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==(CrntSW-1))%>%ungroup() %>% select(nChum) %>% sum()) & (AKRO_BBSRI_Dlvry$SW %>% unique() %>% .[!is.na(.)] %>% length() > 1),", a decrease in total bycatch from the previous week (Figure 2)",ifelse((AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==CrntSW)%>%ungroup() %>% select(nChum) %>% sum()) > (AKRO_ObsSum %>% filter(NMFS_AREA=="BSAI Total")%>% filter(SW==(CrntSW-1))%>%ungroup() %>% select(nChum) %>% sum()) & (AKRO_BBSRI_Dlvry$SW %>% unique() %>% .[!is.na(.)] %>% length() > 1) ,", an increase in total bycatch from the previous week (Figure 2)",""))`. The majority of chum salmon were caught in NMFS Area `r AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)%>% unlist()` (Figure 1). `r ifelse(AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA) == AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),paste("Similarly, the largest chum rate (chum per delivery) was also in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""),paste("Despite the largest number of chum salmon being caught in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChum) %>% select(NMFS_AREA)," the highest rate of chum salmon bycatch was in NMFS Area ",AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total")  %>% filter(SW==CrntSW) %>% ungroup() %>% slice_max(.,order_by=nChumPerDeliv) %>% select(NMFS_AREA),sep=""))`. `r ifelse(PrntByctchSW==T, paste("A total of ", AKRO_ObsSum$nChum %>% sum(.,na.rm=T) %>% formatC(.,big.mark=",",format="d"), " chum salmon have been caught since statistical week ", min(AKRO_ObsSum$SW,na.rm=T),". With the majority of chum salmon being caught in NMFS area ", AKRO_ObsSum %>% filter(NMFS_AREA!="BSAI Total") %>% group_by(NMFS_AREA) %>% summarize(nChum = sum(nChum,na.rm=T)) %>% slice_max(nChum) %>% select(NMFS_AREA) %>% unlist(),".",sep=""),"") ` 
+
 
 
 ```{r AKRO_Bycatch, eval=PrntByctchSW, echo=F, fig.cap="Number of chum salmon caught by the shoreside sector of the Bering Sea pollock trawl fishery by statistical week. Weekly totals for which fewer than 4 vessels made deliveries have been omitted.",fig.width=6,fig.height=3}
@@ -446,6 +442,16 @@ colnames(Genos_Fldm_Alleles)[5:(ncol(Genos_Fldm_Alleles))]<-paste(rep(colnames(G
 
 Genos_Fldm_Alleles[Genos_Fldm_Alleles=="NA"]<-NA
 
+```
+
+
+```{r PositiveControl, eval=T, echo=F}
+#### compare positive controls with known genotypes
+
+
+#Remove the positive controls
+Genos_Fldm_Alleles <- Genos_Fldm_Alleles %>%
+  filter(!(indiv %in% PosCntrls))
 ```
 
 
@@ -558,33 +564,73 @@ Mixtures <- Mixtures%>%
 
 
 ```{r SampGeno, eval=T, echo=F}
+#Too many issues with AKRO data right now, this is the old code that merged the data
+# ProcessRate <- GenoMetaDat %>%
+#   left_join(.,AKRO_BBSRI_Dlvry,by="DELIVERY_ID")%>% #
+#   filter(SEL_TO_GENOTYPE == 1)%>%
+#   mutate(SuccssGTd = ifelse(`WHAT_CARD-NO`%in%Mixtures$indiv,1,0))%>%
+#   group_by(SW.x,TARGET_SAMPLE_RATE) %>%#group_by(PLANT_NAME.y,SW.x,TARGET_SAMPLE_RATE) %>%
+#   mutate(TARGET_SAMPLE_RATE = round(1/TARGET_SAMPLE_RATE,3))%>%
+#   summarize(nPrcsd = n(),
+#             nGenod = sum(SuccssGTd,na.rm=T))%>%
+#   rename('SW' = 'SW.x')
+
+
 ProcessRate <- GenoMetaDat %>%
-  left_join(.,AKRO_BBSRI_Dlvry,by="DELIVERY_ID")%>%
+  left_join(.,BBSRI_Dlvry,by="TEMP_DELIVERY_ID")%>% #
   filter(SEL_TO_GENOTYPE == 1)%>%
   mutate(SuccssGTd = ifelse(`WHAT_CARD-NO`%in%Mixtures$indiv,1,0))%>%
-  group_by(PLANT_NAME,SW.x,TARGET_SAMPLE_RATE) %>%
-  mutate(TARGET_SAMPLE_RATE = round(1/TARGET_SAMPLE_RATE,3))%>%
-  summarize(nPrcsd = n(),
-            nGenod = sum(SuccssGTd,na.rm=T))%>%
-  rename('SW' = 'SW.x')
-
-AKRO_BBSRI_DlvrySum <- AKRO_BBSRI_Dlvry %>%
+  rename('SW' = 'SW.x')%>%
+  mutate(SW = ifelse(CmbWk==TRUE & SW %in% SW2Cmb, CrntSW,SW))%>%
   group_by(PLANT_NAME,SW,TARGET_SAMPLE_RATE) %>%
   mutate(TARGET_SAMPLE_RATE = round(1/TARGET_SAMPLE_RATE,3))%>%
-  summarize(nChum = sum(CHUM_RETENTION_COUNT,na.rm=T),
+  summarize(nPrcsd = n(),
+            nGenod = sum(SuccssGTd,na.rm=T))
+
+# AKRO_BBSRI_DlvrySum <- AKRO_BBSRI_Dlvry %>%
+#   group_by(PLANT_NAME,SW,TARGET_SAMPLE_RATE) %>%
+#   mutate(TARGET_SAMPLE_RATE = round(1/TARGET_SAMPLE_RATE,3))%>%
+#   summarize(nChum = sum(CHUM_RETENTION_COUNT,na.rm=T),
+#             nChumSamp = sum(CHUM_SAMPLED,na.rm=T),
+#             RlzdSampRt = round(nChumSamp / nChum,3))%>%
+#   left_join(ProcessRate)%>%
+#   mutate(GenoRate = round(nGenod/nChum,3))%>%
+# bind_rows(.,data.frame(PLANT_NAME = "Total",
+#                        nChum = sum(AKRO_BBSRI_Dlvry$CHUM_RETENTION_COUNT,na.rm=T),
+#                        nChumSamp = sum(AKRO_BBSRI_Dlvry$CHUM_SAMPLED,na.rm=T),
+#                        RlzdSampRt = round(sum(AKRO_BBSRI_Dlvry$CHUM_SAMPLED,na.rm=T)/sum(AKRO_BBSRI_Dlvry$CHUM_RETENTION_COUNT,na.rm=T),2),
+#                        nPrcsd = sum(ProcessRate$nPrcsd,na.rm=T),
+#                        nGenod = sum(ProcessRate$nGenod,na.rm=T),
+#                        GenoRate = round(sum(ProcessRate$nGenod,na.rm=T)/sum(AKRO_BBSRI_Dlvry$CHUM_RETENTION_COUNT,na.rm=T),3)
+#                        ))%>%
+#   filter(nChum>0)%>%ungroup()
+
+AKRO_BBSRI_DlvrySum <- BBSRI_Dlvry %>%
+  group_by(PLANT_NAME,SW,TARGET_SAMPLE_RATE) %>%
+  mutate(TARGET_SAMPLE_RATE = round(1/TARGET_SAMPLE_RATE,3))%>%
+  summarize(nChum = sum(CHUM_LANDED,na.rm=T),
             nChumSamp = sum(CHUM_SAMPLED,na.rm=T),
             RlzdSampRt = round(nChumSamp / nChum,3))%>%
-  left_join(ProcessRate)%>%
+  left_join(ProcessRate%>% mutate(SW=as.character(SW)) )%>%
   mutate(GenoRate = round(nGenod/nChum,3))%>%
 bind_rows(.,data.frame(PLANT_NAME = "Total",
-                       nChum = sum(AKRO_BBSRI_Dlvry$CHUM_RETENTION_COUNT,na.rm=T),
-                       nChumSamp = sum(AKRO_BBSRI_Dlvry$CHUM_SAMPLED,na.rm=T),
-                       RlzdSampRt = round(sum(AKRO_BBSRI_Dlvry$CHUM_SAMPLED,na.rm=T)/sum(AKRO_BBSRI_Dlvry$CHUM_RETENTION_COUNT,na.rm=T),2),
+                       nChum = sum(BBSRI_Dlvry$CHUM_LANDED,na.rm=T),
+                       nChumSamp = sum(BBSRI_Dlvry$CHUM_SAMPLED,na.rm=T),
+                       RlzdSampRt = round(sum(BBSRI_Dlvry$CHUM_SAMPLED,na.rm=T)/sum(BBSRI_Dlvry$CHUM_LANDED,na.rm=T),2),
                        nPrcsd = sum(ProcessRate$nPrcsd,na.rm=T),
                        nGenod = sum(ProcessRate$nGenod,na.rm=T),
-                       GenoRate = round(sum(ProcessRate$nGenod,na.rm=T)/sum(AKRO_BBSRI_Dlvry$CHUM_RETENTION_COUNT,na.rm=T),3)
+                       GenoRate = round(sum(ProcessRate$nGenod,na.rm=T)/sum(AKRO_BBSRI_Dlvry$CHUM_LANDED,na.rm=T),3)
                        ))%>%
-  filter(nChum>0)%>%ungroup()
+  filter(nChum>0)%>%ungroup()%>%
+  mutate(PLANT = recode(PLANT_NAME,
+                             'Alyeska' = 'P1',
+                             'Northern Victor' = 'P2',
+                             'Trident' = 'P3',
+                             'Unisea' = 'P4',
+                             'Westward' = 'P5'))%>%
+  select(-PLANT_NAME) %>%relocate(PLANT,.before='SW')
+
+
 ```
 
 ```{r SampGenoTable, eval=T, echo=F}
@@ -599,10 +645,16 @@ AKRO_BBSRI_DlvrySum %>%
   select(-SW) %>%
   knitr::kable(col.names=c("Plant","Target Sample Rate","Total Chum","Chum Sampled","Sample Rate","Chum Genotyped","Chum Analyzed","Genotype Rate"), caption = paste("Chum salmon bycatch sampling and genotyping information for statistical week " , CrntSW, " for the shoreside processing plants. Sampling is grouped by processing plant and target sampling rate. Chum genotyped is the number of chum that were amplified for the marker panel. Chum analyzed are those chum that were genotyped for at least 80\\% of the genetic markers after potential duplicate samples were removed.",sep=""),format = "latex",booktabs=T, linesep = "")%>%
   kableExtra::kable_styling(latex_options = "HOLD_position")%>%
- kableExtra::row_spec(nrow(AKRO_BBSRI_Dlvry %>%
-                  group_by(PLANT_NAME,SW,TARGET_SAMPLE_RATE) %>%
+ kableExtra::row_spec(nrow(BBSRI_Dlvry %>%mutate(PLANT = recode(PLANT_NAME,
+                             'Alyeska' = 'P1',
+                             'Northern Victor' = 'P2',
+                             'Trident' = 'P3',
+                             'Unisea' = 'P4',
+                             'Westward' = 'P5'))%>%
+  select(-PLANT_NAME) %>%
+                  group_by(PLANT,SW,TARGET_SAMPLE_RATE) %>%
                   mutate(TARGET_SAMPLE_RATE = round(1/TARGET_SAMPLE_RATE,3))%>%
-                  summarize(nChum = sum(CHUM_RETENTION_COUNT,na.rm=T),
+                  summarize(nChum = sum(CHUM_LANDED,na.rm=T),
                             nChumSamp = sum(CHUM_SAMPLED,na.rm=T),
                             RlzdSampRt = round(nChumSamp / nChum,3))),hline_after=T)%>%
   kableExtra::column_spec(column = 2:8, width = "0.5in")
@@ -815,7 +867,7 @@ write_delim(file = file.path(paste("./Output/",CrntYr,"/",CrntSW,"/GSIresults_SW
 
 #SamplingSummary
 AKRO_BBSRI_DlvrySum %>%
-  filter(PLANT_NAME == "Total")%>%
+  filter(PLANT == "Total")%>%
   mutate(SW = CrntSW)%>%
   rename('nGTd' = 'nPrcsd' , 
          'nAnalyzed' = 'nGenod' )%>%
@@ -847,7 +899,7 @@ of the bycatch (`r Res_temp %>% filter(Analysis == paste("SW",CrntSW,sep="")) %>
 knitr::include_graphics(file.path(paste("./Output/",CrntYr,"/",CrntSW,"/","SW",CrntSW,"_Table_Numb.png",sep="")))
 ```
 
-```{r PriorResChk, eval=T, echo=F}
+```{r PriorResChk, eval=T, echo=F, cache=T}
 GsiRes2Read <- list.files(file.path(paste("./Output/",CrntYr,"/",sep="")),recursive=T,full.names = T)%>%
   grep(pattern="GSIresults_",value=T)
 
@@ -862,7 +914,7 @@ GsiRes2Read<- data.frame(File = GsiRes2Read,
   select(File)%>%
   unlist()
 
-PriorRes <- ifelse(length(GsiRes2Read)>1,"TRUE","FALSE")
+PriorRes <- ifelse(length(GsiRes2Read)>1,TRUE,FALSE)
 ```
 
 

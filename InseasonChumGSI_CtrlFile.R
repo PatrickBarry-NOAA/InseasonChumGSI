@@ -3,7 +3,7 @@ library(stringr)
 library(tidyverse)
 
 #Set the Current Statistical Week
-CrntSW <- 32
+CrntSW <- '24-25'
 
 #Check to see if we are combining SW
 if(nchar(CrntSW)>2){
